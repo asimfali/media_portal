@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ music.title }} - {{ music.artist.name }} - Медиа Портал{% endblock %}
+
+{% block content %}
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="md:flex">
+                <!-- Обложка -->
+                <div class="md:w-1/3">
+                    {% if music.cover_image %}
+                        <img src="{{ music.cover_image.url }}" alt="{{ music.title }}"
+                             class="w-full h-64 md:h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-64 md:h-full bg-gray-200 flex items-center justify-center">
+                            <svg class="w-20 h-20 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                      d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"
+                                      clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Информация -->
+                <div class="md:w-2/3 p-8">
+                    <div class="mb-6">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ music.title }}</h1>
+                        <p class="text-xl text-gray-600 mb-4">{{ music.artist.name }}</p>
+
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
+                            {% if music.category %}
+                                <span class="bg-gray-100 px-3 py-1 rounded-full">{{ music.category.name }}</span>
+                            {% endif %}
+                            <span>{{ music.release_date|date:"d.m.Y" }}</span>
+                            {% if music.duration %}
+                                <span>{{ music.duration }}</span>
+                            {% endif %}
+                            <span>{{ music.view_count }} прослушиваний</span>
+                        </div>
+                    </div>
+
+                    <!-- Аудио плеер -->
+                    <div class="mb-6">
+                        <audio controls class="w-full">
+                            <source src="{{ music.audio_file.url }}" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио элемент.
+                        </audio>
+                    </div>
+
+                    <!-- Описание -->
+                    {% if music.description %}
+                        <div class="mb-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Описание</h3>
+                            <p class="text-gray-600">{{ music.description|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Навигация -->
+                    <div class="flex space-x-4">
+                        <a href="{% url 'music_list' %}"
+                           class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Вернуться к списку
+                        </a>
+                        {% if music.category %}
+                            <a href="{% url 'music_by_category' music.category.slug %}"
+                               class="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 rounded-md hover:bg-primary-200 transition-colors">
+                                Больше из {{ music.category.name }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Похожие треки -->
+        {% if related_music %}
+            <div class="mt-12">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Другие треки исполнителя</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {% for track in related_music %}
+                        <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+                            <div class="aspect-square">
+                                {% if track.cover_image %}
+                                    <img src="{{ track.cover_image.url }}" alt="{{ track.title }}"
+                                         class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                  d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"
+                                                  clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 mb-1">
+                                    <a href="{{ track.get_absolute_url }}"
+                                       class="hover:text-primary-600">{{ track.title }}</a>
+                                </h3>
+                                <p class="text-sm text-gray-600">{{ track.artist.name }}</p>
+                                <div class="mt-2 text-xs text-gray-500">
+                                    {{ track.release_date|date:"Y" }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

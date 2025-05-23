@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ video.title }} - Медиа Портал{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Видео плеер -->
+        <div class="aspect-video bg-black">
+            <video controls class="w-full h-full" poster="{% if video.thumbnail %}{{ video.thumbnail.url }}{% endif %}">
+                <source src="{{ video.video_file.url }}" type="video/mp4">
+                Ваш браузер не поддерживает видео элемент.
+            </video>
+        </div>
+
+        <!-- Информация о видео -->
+        <div class="p-6">
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ video.title }}</h1>
+
+                <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                    {% if video.category %}
+                    <span class="bg-gray-100 px-3 py-1 rounded-full">{{ video.category.name }}</span>
+                    {% endif %}
+                    <span>{{ video.created_at|date:"d.m.Y" }}</span>
+                    {% if video.duration %}
+                    <span>Длительность: {{ video.duration }}</span>
+                    {% endif %}
+                    <span>{{ video.view_count }} просмотров</span>
+                </div>
+            </div>
+
+            <!-- Описание -->
+            {% if video.description %}
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Описание</h3>
+                <div class="prose max-w-none text-gray-600">
+                    {{ video.description|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Навигация -->
+            <div class="flex flex-wrap gap-4">
+                <a href="{% url 'video_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Вернуться к списку
+                </a>
+                {% if video.category %}
+                <a href="{% url 'video_by_category' video.category.slug %}" class="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 rounded-md hover:bg-primary-200 transition-colors">
+                    Больше из {{ video.category.name }}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Похожие видео -->
+    {% if related_videos %}
+    <div class="mt-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Похожие видео</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for related_video in related_videos %}
+            <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+                <div class="aspect-video relative">
+                    {% if related_video.thumbnail %}
+                    <img src="{{ related_video.thumbnail.url }}" alt="{{ related_video.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    {% endif %}
+
+                    <!-- Play button overlay -->
+                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <a href="{{ related_video.get_absolute_url }}" class="bg-white bg-opacity-90 rounded-full p-2 hover:bg-opacity-100 transition-all">
+                            <svg class="w-4 h-4 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <!-- Duration badge -->
+                    {% if related_video.duration %}
+                    <div class="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs px-1 py-0.5 rounded">
+                        {{ related_video.duration }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="p-3">
+                    <h3 class="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
+                        <a href="{{ related_video.get_absolute_url }}" class="hover:text-primary-600">{{ related_video.title }}</a>
+                    </h3>
+                    <div class="text-xs text-gray-600">
+                        {{ related_video.created_at|date:"d.m.Y" }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

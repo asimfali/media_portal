@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Медиа Портал - Главная{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Приветствие -->
+    <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Добро пожаловать в Медиа Портал</h1>
+        <p class="text-xl text-gray-600">Ваша коллекция музыки и видео</p>
+    </div>
+
+    <!-- Последние добавления -->
+    <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Последние добавления</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Последняя музыка -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Музыка</h3>
+                <div class="space-y-3">
+                    {% for music in latest_music %}
+                    <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center space-x-3">
+                            {% if music.cover_image %}
+                            <img src="{{ music.cover_image.url }}" alt="{{ music.title }}" class="w-12 h-12 rounded object-cover">
+                            {% else %}
+                            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">
+                                    <a href="{{ music.get_absolute_url }}" class="hover:text-primary-600">{{ music.title }}</a>
+                                </p>
+                                <p class="text-sm text-gray-500 truncate">{{ music.artist.name }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500">Пока нет музыки</p>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'music_list' %}" class="text-primary-600 hover:text-primary-800 font-medium">Посмотреть все →</a>
+                </div>
+            </div>
+
+            <!-- Последние видео -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Видео</h3>
+                <div class="space-y-3">
+                    {% for video in latest_videos %}
+                    <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center space-x-3">
+                            {% if video.thumbnail %}
+                            <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="w-12 h-12 rounded object-cover">
+                            {% else %}
+                            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">
+                                    <a href="{{ video.get_absolute_url }}" class="hover:text-primary-600">{{ video.title }}</a>
+                                </p>
+                                <p class="text-sm text-gray-500">{{ video.created_at|date:"d.m.Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500">Пока нет видео</p>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'video_list' %}" class="text-primary-600 hover:text-primary-800 font-medium">Посмотреть все →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Популярный контент -->
+    {% if popular_music or popular_videos %}
+    <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Популярное</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Популярная музыка -->
+            {% if popular_music %}
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Популярная музыка</h3>
+                <div class="space-y-3">
+                    {% for music in popular_music %}
+                    <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                {% if music.cover_image %}
+                                <img src="{{ music.cover_image.url }}" alt="{{ music.title }}" class="w-10 h-10 rounded object-cover">
+                                {% else %}
+                                <div class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        <a href="{{ music.get_absolute_url }}" class="hover:text-primary-600">{{ music.title }}</a>
+                                    </p>
+                                    <p class="text-sm text-gray-500 truncate">{{ music.artist.name }}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ music.view_count }} прослушиваний</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Популярные видео -->
+            {% if popular_videos %}
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Популярные видео</h3>
+                <div class="space-y-3">
+                    {% for video in popular_videos %}
+                    <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                {% if video.thumbnail %}
+                                <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="w-10 h-10 rounded object-cover">
+                                {% else %}
+                                <div class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        <a href="{{ video.get_absolute_url }}" class="hover:text-primary-600">{{ video.title }}</a>
+                                    </p>
+                                    <p class="text-sm text-gray-500">{{ video.created_at|date:"d.m.Y" }}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ video.view_count }} просмотров</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Категории -->
+    {% if categories %}
+    <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Категории</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for category in categories %}
+            <div class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">{{ category.name }}</h3>
+                <div class="text-sm text-gray-500 space-y-1">
+                    {% if category.music_count %}
+                    <p>Музыка: {{ category.music_count }}</p>
+                    {% endif %}
+                    {% if category.video_count %}
+                    <p>Видео: {{ category.video_count }}</p>
+                    {% endif %}
+                </div>
+                <div class="mt-4 space-x-2">
+                    {% if category.music_count %}
+                    <a href="{% url 'music_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Музыка</a>
+                    {% endif %}
+                    {% if category.video_count %}
+                    <a href="{% url 'video_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Видео</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
