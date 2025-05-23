@@ -7,17 +7,36 @@
     <!-- Приветствие -->
     <div class="text-center">
         <h1 class="text-4xl font-bold text-gray-900 mb-4">Добро пожаловать в Медиа Портал</h1>
-        <p class="text-xl text-gray-600">Ваша коллекция музыки и видео</p>
+        <p class="text-xl text-gray-600">Ваша коллекция музыки, видео и фотографий</p>
+    </div>
+
+    <!-- Быстрая статистика -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <div class="text-3xl font-bold text-primary-600 mb-2">{{ total_music|default:0 }}</div>
+            <div class="text-gray-600">Музыкальных треков</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <div class="text-3xl font-bold text-primary-600 mb-2">{{ total_videos|default:0 }}</div>
+            <div class="text-gray-600">Видеозаписей</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <div class="text-3xl font-bold text-primary-600 mb-2">{{ total_photos|default:0 }}</div>
+            <div class="text-gray-600">Фотографий</div>
+        </div>
     </div>
 
     <!-- Последние добавления -->
     <section>
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Последние добавления</h2>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Последняя музыка -->
             <div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Музыка</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Музыка</h3>
+                    <a href="{% url 'music_list' %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Все →</a>
+                </div>
                 <div class="space-y-3">
                     {% for music in latest_music %}
                     <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
@@ -40,25 +59,25 @@
                         </div>
                     </div>
                     {% empty %}
-                    <p class="text-gray-500">Пока нет музыки</p>
+                    <p class="text-gray-500 text-center py-4">Пока нет музыки</p>
                     {% endfor %}
-                </div>
-                <div class="mt-4">
-                    <a href="{% url 'music_list' %}" class="text-primary-600 hover:text-primary-800 font-medium">Посмотреть все →</a>
                 </div>
             </div>
 
             <!-- Последние видео -->
             <div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Видео</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Видео</h3>
+                    <a href="{% url 'video_list' %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Все →</a>
+                </div>
                 <div class="space-y-3">
                     {% for video in latest_videos %}
                     <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
                         <div class="flex items-center space-x-3">
                             {% if video.thumbnail %}
-                            <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="w-12 h-12 rounded object-cover">
+                            <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="w-12 h-8 rounded object-cover">
                             {% else %}
-                            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                            <div class="w-12 h-8 bg-gray-200 rounded flex items-center justify-center">
                                 <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                                 </svg>
@@ -73,22 +92,90 @@
                         </div>
                     </div>
                     {% empty %}
-                    <p class="text-gray-500">Пока нет видео</p>
+                    <p class="text-gray-500 text-center py-4">Пока нет видео</p>
                     {% endfor %}
                 </div>
-                <div class="mt-4">
-                    <a href="{% url 'video_list' %}" class="text-primary-600 hover:text-primary-800 font-medium">Посмотреть все →</a>
+            </div>
+
+            <!-- Последние фотографии -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Фотографии</h3>
+                    <a href="{% url 'photo_list' %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Все →</a>
+                </div>
+                <div class="space-y-3">
+                    {% for photo in latest_photos %}
+                    <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center space-x-3">
+                            {% if photo.thumbnail %}
+                            <img src="{{ photo.thumbnail.url }}" alt="{{ photo.title }}" class="w-12 h-12 rounded object-cover">
+                            {% else %}
+                            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-12 h-12 rounded object-cover">
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">
+                                    <a href="{{ photo.get_absolute_url }}" class="hover:text-primary-600">{{ photo.title }}</a>
+                                </p>
+                                <p class="text-sm text-gray-500 truncate">{{ photo.album.title }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-center py-4">Пока нет фотографий</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Последние альбомы -->
+    {% if latest_albums %}
+    <section>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Последние альбомы</h2>
+            <a href="{% url 'album_list' %}" class="text-primary-600 hover:text-primary-800 font-medium">Все альбомы →</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for album in latest_albums %}
+            <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+                <div class="aspect-video relative">
+                    {% if album.cover_photo and album.cover_photo.thumbnail %}
+                    <img src="{{ album.cover_photo.thumbnail.url }}" alt="{{ album.title }}" class="w-full h-full object-cover">
+                    {% elif album.cover_photo %}
+                    <img src="{{ album.cover_photo.image.url }}" alt="{{ album.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    {% endif %}
+
+                    <!-- Количество фотографий -->
+                    <div class="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                        {{ album.photo_count }} фото
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <h3 class="font-medium text-gray-900 mb-1">
+                        <a href="{{ album.get_absolute_url }}" class="hover:text-primary-600">{{ album.title }}</a>
+                    </h3>
+                    <p class="text-sm text-gray-500">{{ album.updated_at|date:"d.m.Y" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Популярный контент -->
-    {% if popular_music or popular_videos %}
+    {% if popular_music or popular_videos or popular_photos %}
     <section>
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Популярное</h2>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Популярная музыка -->
             {% if popular_music %}
             <div>
@@ -132,9 +219,9 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3 flex-1 min-w-0">
                                 {% if video.thumbnail %}
-                                <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="w-10 h-10 rounded object-cover">
+                                <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="w-10 h-6 rounded object-cover">
                                 {% else %}
-                                <div class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                                <div class="w-10 h-6 bg-gray-200 rounded flex items-center justify-center">
                                     <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                                     </svg>
@@ -148,6 +235,35 @@
                                 </div>
                             </div>
                             <span class="text-xs text-gray-400">{{ video.view_count }} просмотров</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Популярные фотографии -->
+            {% if popular_photos %}
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Популярные фото</h3>
+                <div class="space-y-3">
+                    {% for photo in popular_photos %}
+                    <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                {% if photo.thumbnail %}
+                                <img src="{{ photo.thumbnail.url }}" alt="{{ photo.title }}" class="w-10 h-10 rounded object-cover">
+                                {% else %}
+                                <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="w-10 h-10 rounded object-cover">
+                                {% endif %}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                        <a href="{{ photo.get_absolute_url }}" class="hover:text-primary-600">{{ photo.title }}</a>
+                                    </p>
+                                    <p class="text-sm text-gray-500 truncate">{{ photo.album.title }}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ photo.view_count }} просмотров</span>
                         </div>
                     </div>
                     {% endfor %}
@@ -173,13 +289,25 @@
                     {% if category.video_count %}
                     <p>Видео: {{ category.video_count }}</p>
                     {% endif %}
+                    {% if category.photo_count %}
+                    <p>Фотографии: {{ category.photo_count }}</p>
+                    {% endif %}
+                    {% if category.album_count %}
+                    <p>Альбомы: {{ category.album_count }}</p>
+                    {% endif %}
                 </div>
-                <div class="mt-4 space-x-2">
+                <div class="mt-4 flex flex-wrap gap-2">
                     {% if category.music_count %}
-                    <a href="{% url 'music_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Музыка</a>
+                    <a href="{% url 'music_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium bg-primary-50 px-2 py-1 rounded">Музыка</a>
                     {% endif %}
                     {% if category.video_count %}
-                    <a href="{% url 'video_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Видео</a>
+                    <a href="{% url 'video_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium bg-primary-50 px-2 py-1 rounded">Видео</a>
+                    {% endif %}
+                    {% if category.photo_count %}
+                    <a href="{% url 'photos_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium bg-primary-50 px-2 py-1 rounded">Фото</a>
+                    {% endif %}
+                    {% if category.album_count %}
+                    <a href="{% url 'albums_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium bg-primary-50 px-2 py-1 rounded">Альбомы</a>
                     {% endif %}
                 </div>
             </div>

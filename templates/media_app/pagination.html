@@ -1,0 +1,23 @@
+{% if is_paginated %}
+<div class="mt-8 flex justify-center">
+    <nav class="flex items-center space-x-2">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+               class="px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded">
+                Предыдущая
+            </a>
+        {% endif %}
+
+        <span class="px-3 py-2 text-sm text-gray-700">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+               class="px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded">
+                Следующая
+            </a>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}

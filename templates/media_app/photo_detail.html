@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load media_extras %}
+
+{% block title %}{{ photo.title }} - Медиа Портал{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Основное изображение -->
+            <div class="relative">
+                <img src="{{ photo.image.url }}" alt="{{ photo.title }}"
+                     class="w-full max-h-[80vh] object-contain bg-gray-900">
+
+                <!-- Навигация по фотографиям в альбоме -->
+                {% if prev_photo or next_photo %}
+                    <div class="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none">
+                        {% if prev_photo %}
+                            <a href="{{ prev_photo.get_absolute_url }}"
+                               class="pointer-events-auto bg-black bg-opacity-50 text-white p-2 rounded-r-lg hover:bg-opacity-75 transition-all">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </a>
+                        {% else %}
+                            <div></div>
+                        {% endif %}
+
+                        {% if next_photo %}
+                            <a href="{{ next_photo.get_absolute_url }}"
+                               class="pointer-events-auto bg-black bg-opacity-50 text-white p-2 rounded-l-lg hover:bg-opacity-75 transition-all">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        {% else %}
+                            <div></div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Информация о фотографии -->
+            <div class="p-6">
+                <div class="flex flex-col lg:flex-row lg:justify-between">
+                    <!-- Основная информация -->
+                    <div class="flex-1">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ photo.title }}</h1>
+                        <p class="text-lg text-gray-600 mb-4">Альбом: <a href="{{ photo.album.get_absolute_url }}"
+                                                                         class="text-primary-600 hover:text-primary-800">{{ photo.album.title }}</a>
+                        </p>
+
+                        {% if photo.description %}
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Описание</h3>
+                                <p class="text-gray-600">{{ photo.description|linebreaks }}</p>
+                            </div>
+                        {% endif %}
+
+                        <!-- Теги -->
+                        {% if photo.tags %}
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Теги</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for tag in photo.tags|split:"," %}
+                                        {% if tag.strip %}
+                                            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{{ tag.strip }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Метаданные -->
+                    <div class="lg:w-80 lg:ml-8">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Детали</h3>
+
+                            <div class="space-y-3 text-sm">
+                                {% if photo.taken_at %}
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Дата съемки:</span>
+                                        <span class="font-medium">{{ photo.taken_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                {% endif %}
+
+                                {% if photo.camera_model %}
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Камера:</span>
+                                        <span class="font-medium">{{ photo.camera_model }}</span>
+                                    </div>
+                                {% endif %}
+
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Размер:</span>
+                                    <span class="font-medium">{{ photo.width }}×{{ photo.height }} px</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Размер файла:</span>
+                                    <span class="font-medium">{{ photo.file_size|filesizeformat }}</span>
+                                </div>
+
+                                {% if photo.category %}
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Категория:</span>
+                                        <span class="font-medium">{{ photo.category.name }}</span>
+                                    </div>
+                                {% endif %}
+
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Просмотров:</span>
+                                    <span class="font-medium">{{ photo.view_count }}</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Добавлено:</span>
+                                    <span class="font-medium">{{ photo.created_at|date:"d.m.Y" }}</span>
+                                </div>
+                            </div>
+
+                            <!-- EXIF данные -->
+                            {% if photo.camera_settings %}
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <h4 class="font-medium text-gray-900 mb-2">Настройки камеры</h4>
+                                    <div class="space-y-1 text-sm">
+                                        {% for key, value in photo.camera_settings.items %}
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">{{ key }}:</span>
+                                                <span class="font-medium">{{ value }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Геолокация -->
+                            {% if photo.location_name %}
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <h4 class="font-medium text-gray-900 mb-2">Местоположение</h4>
+                                    <p class="text-sm text-gray-600">{{ photo.location_name }}</p>
+                                    {% if photo.latitude and photo.longitude %}
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            {{ photo.latitude|floatformat:6 }}, {{ photo.longitude|floatformat:6 }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Навигация -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex flex-wrap gap-4">
+                        <a href="{{ photo.album.get_absolute_url }}"
+                           class="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 rounded-md hover:bg-primary-200 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Вернуться к альбому
+                        </a>
+                        <a href="{% url 'photo_list' %}"
+                           class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                            Все фотографии
+                        </a>
+                        {% if photo.category %}
+                            <a href="{% url 'photos_by_category' photo.category.slug %}"
+                               class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                                {{ photo.category.name }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Похожие фотографии -->
+        {% if related_photos %}
+            <div class="mt-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Другие фотографии из альбома</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    {% for related_photo in related_photos %}
+                        <div class="group relative aspect-square bg-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                            <a href="{{ related_photo.get_absolute_url }}" class="block w-full h-full">
+                                {% if related_photo.thumbnail %}
+                                    <img src="{{ related_photo.thumbnail.url }}" alt="{{ related_photo.title }}"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                                {% else %}
+                                    <img src="{{ related_photo.image.url }}" alt="{{ related_photo.title }}"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

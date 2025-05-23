@@ -18,4 +18,16 @@ urlpatterns = [
     # API endpoints
     path('api/music/<int:music_id>/', views.api_music_info, name='api_music_info'),
     path('api/video/<int:video_id>/', views.api_video_info, name='api_video_info'),
+
+    path('albums/', views.AlbumListView.as_view(), name='album_list'),
+    path('albums/category/<slug:category_slug>/', views.AlbumListView.as_view(), name='albums_by_category'),
+    path('album/<slug:slug>/', views.AlbumDetailView.as_view(), name='album_detail'),
+
+    # Фотографии
+    path('photos/', views.PhotoListView.as_view(), name='photo_list'),
+    path('photos/category/<slug:category_slug>/', views.PhotoListView.as_view(), name='photos_by_category'),
+    path('photo/<int:pk>/', views.PhotoDetailView.as_view(), name='photo_detail'),
+
+    # API для фотографий
+    path('api/photo/<int:photo_id>/', views.api_photo_info, name='api_photo_info'),
 ]

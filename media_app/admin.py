@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Category, Artist, Music, Video
+from .models import Category, Artist, Music, Video, Photo, Album
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -50,3 +51,59 @@ class VideoAdmin(admin.ModelAdmin):
             'fields': ('duration', 'created_at')
         }),
     )
+
+
+@admin.register(Album)
+class AlbumAdmin(admin.ModelAdmin):
+    list_display = ['title', 'category', 'photo_count', 'view_count', 'is_private', 'created_at']
+    list_filter = ['category', 'is_private', 'created_at']
+    search_fields = ['title', 'description']
+    prepopulated_fields = {'slug': ('title',)}
+    date_hierarchy = 'created_at'
+    readonly_fields = ['created_at', 'updated_at', 'photo_count']
+
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('title', 'slug', 'description', 'category')
+        }),
+        ('Настройки', {
+            'fields': ('cover_photo', 'is_private')
+        }),
+        ('Статистика', {
+            'fields': ('photo_count', 'view_count', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(Photo)
+class PhotoAdmin(admin.ModelAdmin):
+    list_display = ['title', 'album', 'category', 'taken_at', 'view_count', 'created_at']
+    list_filter = ['album', 'category', 'taken_at', 'created_at']
+    search_fields = ['title', 'description', 'tags', 'album__title']
+    date_hierarchy = 'created_at'
+    readonly_fields = ['created_at', 'width', 'height', 'file_size', 'camera_model', 'camera_settings']
+
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('title', 'album', 'category', 'description', 'tags')
+        }),
+        ('Медиа файлы', {
+            'fields': ('image', 'thumbnail')
+        }),
+        ('Метаданные изображения', {
+            'fields': ('width', 'height', 'file_size', 'taken_at', 'camera_model', 'camera_settings'),
+            'classes': ('collapse',)
+        }),
+        ('Геолокация', {
+            'fields': ('location_name', 'latitude', 'longitude'),
+            'classes': ('collapse',)
+        }),
+        ('Статистика', {
+            'fields': ('view_count', 'created_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('album', 'category')

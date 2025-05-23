@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Фотоальбомы - Медиа Портал{% endblock %}
+
+{% block content %}
+<div class="flex flex-col lg:flex-row gap-8">
+    <!-- Боковая панель с фильтрами -->
+    <aside class="lg:w-64 flex-shrink-0">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Фильтры</h3>
+
+            <!-- Категории -->
+            {% if categories %}
+            <div class="mb-6">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">Категории</h4>
+                <ul class="space-y-1">
+                    <li><a href="{% url 'album_list' %}" class="text-sm text-gray-600 hover:text-primary-600 {% if not current_category %}font-medium text-primary-600{% endif %}">Все</a></li>
+                    {% for category in categories %}
+                    <li>
+                        <a href="{% url 'albums_by_category' category.slug %}"
+                           class="text-sm text-gray-600 hover:text-primary-600 {% if current_category.slug == category.slug %}font-medium text-primary-600{% endif %}">
+                            {{ category.name }} ({{ category.album_count }})
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Сортировка -->
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-2">Сортировка</h4>
+                <select onchange="location.href='?sort=' + this.value + '{% if query %}&q={{ query }}{% endif %}'" class="w-full text-sm border border-gray-300 rounded px-3 py-2">
+                    <option value="" {% if not sort %}selected{% endif %}>По обновлению</option>
+                    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Сначала новые</option>
+                    <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Сначала старые</option>
+                    <option value="title" {% if sort == 'title' %}selected{% endif %}>По названию</option>
+                    <option value="popular" {% if sort == 'popular' %}selected{% endif %}>По популярности</option>
+                    <option value="photos" {% if sort == 'photos' %}selected{% endif %}>По количеству фото</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Быстрая статистика -->
+        <div class="bg-white rounded-lg shadow p-6 mt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Статистика</h3>
+            <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex justify-between">
+                    <span>Всего альбомов:</span>
+                    <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="flex-1">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">
+                {% if current_category %}
+                    Альбомы: {{ current_category.name }}
+                {% else %}
+                    Все фотоальбомы
+                {% endif %}
+            </h1>
+            {% if query %}
+            <p class="text-gray-600 mt-2">Результаты поиска для "{{ query }}"</p>
+            {% endif %}
+        </div>
+
+        {% if album_list %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for album in album_list %}
+            <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+                <div class="aspect-video relative">
+                    {% if album.cover_photo and album.cover_photo.thumbnail %}
+                    <img src="{{ album.cover_photo.thumbnail.url }}" alt="{{ album.title }}" class="w-full h-full object-cover">
+                    {% elif album.cover_photo %}
+                    <img src="{{ album.cover_photo.image.url }}" alt="{{ album.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    {% endif %}
+
+                    <!-- Количество фотографий -->
+                    <div class="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                        {{ album.photo_count }} фото
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <h3 class="font-medium text-gray-900 mb-2">
+                        <a href="{{ album.get_absolute_url }}" class="hover:text-primary-600">{{ album.title }}</a>
+                    </h3>
+                    {% if album.description %}
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ album.description }}</p>
+                    {% endif %}
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>{{ album.updated_at|date:"d.m.Y" }}</span>
+                        <span>{{ album.view_count }} просмотров</span>
+                    </div>
+                    {% if album.category %}
+                    <div class="mt-2">
+                        <span class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{{ album.category.name }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Пагинация -->
+        {% include 'media_app/pagination.html' %}
+
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Альбомы не найдены</h3>
+            <p class="text-gray-600">Попробуйте изменить критерии поиска или добавьте новые альбомы.</p>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
