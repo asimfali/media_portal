@@ -173,3 +173,5 @@ collected_django_modules.txt
 backup.sql
 current_models.py
 *.txt
+
+/node_modules
